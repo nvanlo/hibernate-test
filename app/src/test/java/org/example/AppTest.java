@@ -27,7 +27,19 @@ class AppTest {
 
     @Transactional
     @Test
-    void appHasAGreeting() {
+    void throwsExceptionWhenCreatingUserWithSameId() {
+        entityManager.clear();
+
+        assertThatThrownBy(() -> {
+            User sameUser = new User(1L, "Nik2");
+            entityManager.persist(sameUser);
+            entityManager.flush();
+        });
+    }
+
+    @Transactional
+    @Test
+    void throwsExceptionWhenCreatingUserWithSameIdIfAlreadyLoaded() {
         User user = entityManager.find(User.class, 1L);
         assertThat(user).isNotNull();
         assertThat(user.getName()).isEqualTo("Nik");
