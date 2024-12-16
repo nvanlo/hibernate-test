@@ -1,8 +1,10 @@
 package org.example;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.example.domain.User;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +36,12 @@ class AppTest {
             User sameUser = new User(1L, "Nik2");
             entityManager.persist(sameUser);
             entityManager.flush();
-        });
+        }).isInstanceOf(ConstraintViolationException.class);;
     }
 
     @Transactional
     @Test
-    void throwsExceptionWhenCreatingUserWithSameIdIfAlreadyLoaded() {
+    void throwsExceptionWhenCreatingUserWithSameIdIfAlreadyLoadedInEntityManager() {
         User user = entityManager.find(User.class, 1L);
         assertThat(user).isNotNull();
         assertThat(user.getName()).isEqualTo("Nik");
@@ -48,6 +50,6 @@ class AppTest {
             User sameUser = new User(1L, "Nik2");
             entityManager.persist(sameUser);
             entityManager.flush();
-        });
+        }).isInstanceOf(EntityExistsException.class);
     }
 }
